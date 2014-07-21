@@ -24,7 +24,7 @@ namespace system_utilities
 				{
 					static const size_t milliseconds = 1;
 					time_tracker tt;
-					size_t old_time = tt.milliseconds();
+					long long old_time = tt.milliseconds();
 					for ( size_t i = 0 ; i < 5 ; ++i )
 					{
 						boost::this_thread::sleep( boost::posix_time::milliseconds( milliseconds ) );

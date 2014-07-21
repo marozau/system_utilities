@@ -1,9 +1,9 @@
 #ifndef _SYSTEM_UTILITIES_COMMON_TIME_TRACKER_H_
 #define _SYSTEM_UTILITIES_COMMON_TIME_TRACKER_H_
 
-#include <boost/noncopyable.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/mutex.hpp>
+
+#include <chrono>
 
 namespace system_utilities
 {
@@ -13,18 +13,27 @@ namespace system_utilities
 		// could be used for performance tests, for processing time calculating
 		// not a virtual destructor class
 
+		/*auto start = std::chrono::high_resolution_clock::now( );
+		
+			auto elapsed = std::chrono::high_resolution_clock::now( ) - start;
+
+		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count( );*/
+
 		class time_tracker
 		{
 			mutable boost::mutex protect_start_;
-			boost::posix_time::ptime start_;
+			std::chrono::high_resolution_clock::time_point start_;
+			
 		public:
 			explicit time_tracker();
 			time_tracker( const time_tracker& other );
 			~time_tracker();
 			//
 			void reset();
-			size_t milliseconds() const;
-			size_t seconds() const;
+			long long nanoseconds() const;
+			long long microseconds( ) const;
+			long long milliseconds() const;
+			long long seconds() const;
 		};
 	}
 }

@@ -111,6 +111,36 @@ elseif( WIN32 )
 	set(output_path ${PROJECT_BINARY_DIR}/bin_${CMAKE_ADDRESS_MODEL}/)
 endif( UNIX )
 
+
+if( WIN32 )
+	add_definitions( -D_USE_32BIT_TIME_T )
+	if (Debug)
+		add_definitions( " -Od -Ob0 " )
+		add_definitions( " -Zi " )
+	else()
+		add_definitions( " -O2 -Ob2 " )	
+	endif()
+
+	#add_definitions(-DUNICODE -D_UNICODE)
+
+	add_definitions( " -Fd " )
+	add_definitions( " -Oy- " )
+        add_definitions( " -GS- " )
+	add_definitions( " -Gy- " )
+	add_definitions( " -arch:SSE2 " )
+	add_definitions( " -GR- " )
+        
+
+	if ( Release )
+		set( Boost_USE_STATIC_RUNTIME ON )
+		add_definitions( " -MT " )
+		add_definitions( " -GL " )
+		SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} /LTCG" )
+		SET( CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} /LTCG" )
+		SET( CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} /LTCG" )
+	endif()
+endif()
+
 set( SOLUTION_BINARY_DIR ${PROJECT_BINARY_DIR} )
 set( EXECUTABLE_OUTPUT_PATH ${output_path} )
 set( LIBRARY_OUTPUT_PATH ${output_path} )
