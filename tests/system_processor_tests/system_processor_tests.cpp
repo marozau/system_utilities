@@ -80,11 +80,11 @@ namespace system_utilities
                 argv[0] = argv1 + 0;
                 
 				{
-					time_tracker tt;
+					time_tracker< std::chrono::milliseconds > tt;
 					system_processor::sp sp = system_processor::init( argc, argv, "config_example_005.ini" );
 					boost::thread th( boost::bind( &details::system_processor_stop_wait_stop_test_helper ) );
 					system_processor::wait_for_stop();
-					BOOST_CHECK_EQUAL( tt.milliseconds() >= 400, true );
+					BOOST_CHECK_EQUAL( tt.elapsed( ) >= 400, true );
 				}
 				
 				remove_all( "logs_005" );
@@ -108,7 +108,6 @@ namespace system_utilities
                 char argv0[] = SOURCE_DIR "/tests/data/system_processor/test.exe";
                 argv[0] = argv0 + 0;
 				{
-					time_tracker tt;
 					system_processor::sp sp = system_processor::init( argc, argv, "config_example_006.ini" );
 					boost::thread th( boost::bind( &details::system_processor_exit_handler_test_helper ) );
 					BOOST_CHECK_NO_THROW( system_processor::wait_for_stop() );

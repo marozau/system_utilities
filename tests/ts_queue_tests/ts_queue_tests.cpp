@@ -56,12 +56,12 @@ namespace system_utilities
 				}
 				void ts_queue_wait_pop_test_helper( ts_queue_size_t* mq )
 				{
-					time_tracker tt;
+					time_tracker< std::chrono::seconds > tt;
 					using namespace boost::posix_time;
 					size_t *s = mq->wait_pop();
 					BOOST_CHECK_EQUAL( *s, (size_t)15 );
 					delete s;
-					BOOST_CHECK_EQUAL( tt.seconds() >= 1, true );
+					BOOST_CHECK_EQUAL( tt.elapsed() >= 1, true );
 					BOOST_CHECK_EQUAL( mq->empty(), true );
 					BOOST_CHECK_EQUAL( mq->size(), (size_t)0 );
 				}

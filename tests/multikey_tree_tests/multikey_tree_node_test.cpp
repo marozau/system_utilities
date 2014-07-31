@@ -102,7 +102,6 @@ namespace system_utilities
 
 				void multikey_tree_node_smoke_test_helper( const size_t number_type_of_thread, const size_t number_type_of_signals_on_thread, const size_t max_stock_name_len )
 				{
-					time_tracker tt;
 					test_thread_root_def test_thread_root;
 					signal_matrix test_all_data_matrix;
 
@@ -142,7 +141,6 @@ namespace system_utilities
 			{
 				static const size_t test_size = 1000;
 				{
-					time_tracker tt;
 					multikey_tree< size_t > mkt;
 					for ( size_t i = 0 ; i < test_size ; ++i )
 						BOOST_CHECK_NO_THROW( (*mkt.get_for_edit( get_random_stock_name( 4 ) )) = i );
@@ -150,7 +148,6 @@ namespace system_utilities
 						BOOST_CHECK_NO_THROW( (*mkt.get_for_edit( get_random_stock_name( 4 ) )) = i );
 				}
 				{
-					time_tracker tt;
 					std::map< std::string, size_t > mt;
 					for ( size_t i = 0 ; i < test_size ; ++i )
 						mt[ get_random_stock_name( 4 ) ] = i;

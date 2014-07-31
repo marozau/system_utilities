@@ -44,7 +44,7 @@ namespace system_utilities
 						loggers.push_back( logger_ptr( logger ) );
 					}
 
-					time_tracker tt;
+					time_tracker< std::chrono::milliseconds > tt;
 					for ( size_t i = 0 ; i < thread_per_log ; ++i )
 					{
 						tg.create_thread( boost::bind( &details::logger_writer, loggers[0].get(), amount_of_messages_per_thread ) );
@@ -53,7 +53,8 @@ namespace system_utilities
 					tg.join_all();
 					task_processor.wait();
 
-					BOOST_CHECK_EQUAL( tt.milliseconds() < time , true );
+					BOOST_CHECK_EQUAL( tt.elapsed() < time , true );
+					//BOOST_CHECK_EQUAL( tt.elapsed( ), 250 );
 					const std::string first_result = log_first.str();
 					const std::string second_result = log_second.str();
 
@@ -84,11 +85,11 @@ namespace system_utilities
 			}
 			void queue_logger_write_tests()
 			{
-				details::queue_logger_write_test_helper( 2500, 350 );
+				details::queue_logger_write_test_helper( 2500, 50 );
 			}
 			void queue_logger_performance_write_tests()
 			{
-				details::queue_logger_write_test_helper( 25000, 280 );
+				details::queue_logger_write_test_helper( 25000, 350 );
 			}
 		}
 	}

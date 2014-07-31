@@ -125,7 +125,7 @@ namespace system_utilities
 			}
 			void task_processor_add_task_performace_tests()
 			{
-				time_tracker tt;
+				time_tracker< std::chrono::milliseconds > tt;
 				static const size_t thread_size = 4;
 				static const size_t counter_size = 8;
 				static const size_t tasks_size = 2000000;
@@ -142,7 +142,7 @@ namespace system_utilities
 					count_summ += counters[ i ].count();
 				}
 				BOOST_CHECK_EQUAL( count_summ, tasks_size );
-				BOOST_CHECK_EQUAL( tt.milliseconds() < 2200, true );
+				BOOST_CHECK_EQUAL( tt.elapsed( ) < 2200, true );
 			}
 			void task_processor_wait_tests()
 			{
@@ -159,7 +159,7 @@ namespace system_utilities
 			}
 			void task_processor_own_allocator_performance_tests()
 			{
-				time_tracker tt;
+				time_tracker< std::chrono::milliseconds > tt;
 				static const size_t thread_size = 4;
 				static const size_t counter_size = 8;
 				static const size_t tasks_size = 2000000;
@@ -172,8 +172,8 @@ namespace system_utilities
 				tp.stop();
 
 				BOOST_CHECK_EQUAL( allocator.count(), tasks_size );
-				std::cout << tt.milliseconds() << std::endl;
-				BOOST_CHECK_EQUAL( tt.milliseconds() < 1450, true );
+				std::cout << tt.elapsed( ) << std::endl;
+				BOOST_CHECK_EQUAL( tt.elapsed( ) < 1450, true );
 			}
 		}
 	}

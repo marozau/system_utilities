@@ -116,15 +116,15 @@ namespace system_utilities
 					queue_logger_type::tasker tasker( log_threads_size );
 					file_logger_type logger( "log_test_3.out", tasker, std::ios_base::app );
 					boost::thread_group tg;
-					time_tracker tt;
+					time_tracker< std::chrono::milliseconds > tt;
 					for( size_t i = 0 ; i < writers ; ++i )
 						tg.create_thread( boost::bind( &details::file_logger_performance_logger_helper_thread< file_logger_type > , &logger, tests_size ) );
-					std::cout << tt.milliseconds() << std::endl;
+					std::cout << tt.elapsed() << std::endl;
 					tg.join_all();
-					std::cout << tt.milliseconds() << std::endl;
+					std::cout << tt.elapsed( ) << std::endl;
 					tasker.wait();
-					BOOST_CHECK_EQUAL( tt.milliseconds() < 1200, true );
-					std::cout << tt.milliseconds() << std::endl;					
+					BOOST_CHECK_EQUAL( tt.elapsed( ) < 1200, true );
+					std::cout << tt.elapsed( ) << std::endl;
 				}
 				BOOST_CHECK_EQUAL( exists( "log_test_3.out" ), true );
 				{

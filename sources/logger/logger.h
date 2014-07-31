@@ -143,7 +143,7 @@ namespace system_utilities
 			{
 				stream_.flush();
 			}
-			inline void formatted_note( const std::string& format, ... )
+			inline void formatted_note( const char* format, ... )
 			{
 				va_list arguments;
 				va_start( arguments, format );
@@ -158,7 +158,7 @@ namespace system_utilities
 			{
 				return streamer( *this, details::message_level::note );
 			}
-			inline void formatted_warn( const std::string& format, ... )
+			inline void formatted_warn( const char* format, ... )
 			{
 				va_list arguments;
 				va_start( arguments, format );
@@ -173,7 +173,7 @@ namespace system_utilities
 			{
 				return streamer( *this, details::message_level::warn );
 			}
-			inline void formatted_error( const std::string& format, ... )
+			inline void formatted_error( const char* format, ... )
 			{
 				va_list arguments;
 				va_start( arguments, format );
@@ -188,7 +188,7 @@ namespace system_utilities
 			{
 				return streamer( *this, details::message_level::error );
 			}
-			inline void formatted_debug( const std::string& format, ... )
+			inline void formatted_debug( const char* format, ... )
 			{
 				va_list arguments;
 				va_start( arguments, format );
@@ -203,7 +203,7 @@ namespace system_utilities
 			{
 				return streamer( *this, details::message_level::debug );
 			}
-			inline void formatted_fatal( const std::string& format, ... )
+			inline void formatted_fatal( const char* format, ... )
 			{
 				va_list arguments;
 				va_start( arguments, format );
@@ -219,14 +219,14 @@ namespace system_utilities
 				return streamer( *this, details::message_level::fatal );
 			}
 		protected:
-			inline void formatted_write( const details::message_level::value value, const std::string& format, va_list arguments )
+			inline void formatted_write( const details::message_level::value value, const char* format, va_list arguments )
 			{
 				char buffer[ format_buffer_size ];
-				const int result = vsprintf( buffer, format.c_str(), arguments );
+				const int result = vsprintf( buffer, format, arguments );
 				if ( result >= 0 )
 					write( value, buffer );
 				else
-					write( details::message_level::fatal, "bad formatted message: '"+format+"'" );
+					write( details::message_level::fatal, "bad formatted message: '"+ std::string( format )+"'" );
 			}
 			virtual void write( const details::message_level::value value, const std::string& message );
 		};

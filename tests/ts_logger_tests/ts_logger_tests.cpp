@@ -22,22 +22,22 @@ namespace system_utilities
 					{
 						std::stringstream stream;
 						ts_logger l( stream );
-						time_tracker tt;
+						time_tracker< std::chrono::milliseconds > tt;
 						static const size_t test_size = 200000;
 						for ( size_t i = 0 ; i < test_size ; ++i )
 							l.note() << "0123456789qwertyuioplkjhgfdsazxcvbnm";
-						std::cout << tt.milliseconds() << std::endl;
-						BOOST_CHECK_EQUAL( tt.milliseconds() < millisecs_for_stream, true ); 
+						std::cout << tt.elapsed() << std::endl;
+						BOOST_CHECK_EQUAL( tt.elapsed( ) < millisecs_for_stream, true );
 					}
 					{
 						std::stringstream stream;
 						ts_logger l( stream );
-						time_tracker tt;
+						time_tracker< std::chrono::milliseconds > tt;
 						static const size_t test_size = 200000;
 						for ( size_t i = 0 ; i < test_size ; ++i )
 							l.note( "0123456789qwertyuioplkjhgfdsazxcvbnm" );
-						std::cout << tt.milliseconds() << std::endl;
-						BOOST_CHECK_EQUAL( tt.milliseconds() < millisecs_for_method, true ); 
+						std::cout << tt.elapsed( ) << std::endl;
+						BOOST_CHECK_EQUAL( tt.elapsed( ) < millisecs_for_method, true );
 					}
 				}
 			}

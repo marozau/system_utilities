@@ -1,9 +1,8 @@
 #ifndef _SYSTEM_UTILITIES_COMMON_TIME_TRACKER_H_
 #define _SYSTEM_UTILITIES_COMMON_TIME_TRACKER_H_
 
-#include <boost/thread/mutex.hpp>
-
 #include <chrono>
+#include <atomic>
 
 namespace system_utilities
 {
@@ -13,27 +12,36 @@ namespace system_utilities
 		// could be used for performance tests, for processing time calculating
 		// not a virtual destructor class
 
-		/*auto start = std::chrono::high_resolution_clock::now( );
-		
-			auto elapsed = std::chrono::high_resolution_clock::now( ) - start;
-
-		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count( );*/
-
+		template< class T >
 		class time_tracker
 		{
-			mutable boost::mutex protect_start_;
-			std::chrono::high_resolution_clock::time_point start_;
+			std::atomic< long long > start_;
 			
 		public:
-			explicit time_tracker();
-			time_tracker( const time_tracker& other );
-			~time_tracker();
+			explicit time_tracker()				
+			{
+				using namespace std::chrono;
+				start_ = duration_cast< T >(high_resolution_clock::now( ).time_since_epoch() ).count();
+			}
+			time_tracker( const time_tracker& other )			
+				: start_( other.start_ )
+			{
+			}
+			~time_tracker()
+			{
+			}
 			//
-			void reset();
-			long long nanoseconds() const;
-			long long microseconds( ) const;
-			long long milliseconds() const;
-			long long seconds() const;
+			void reset()
+			{
+				using namespace std::chrono;
+				start_.exchange( duration_cast< T >(high_resolution_clock::now().time_since_epoch()).count() );
+			}
+			long long elapsed() const
+			{
+				using namespace std::chrono;
+				auto now = duration_cast< T >(high_resolution_clock::now( ).time_since_epoch()).count( );
+				return now - start_.load( );
+			}
 		};
 	}
 }
