@@ -2,7 +2,7 @@
 #define _SYSTEM_UTILITIES_COMMON_PROPERTY_READER_H_
 
 #include <istream>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -27,7 +27,7 @@ namespace system_utilities
         {
 			friend class system_utilities::tests_::common::property_reader_test_helper;
 		public:
-			typedef std::map< std::string, std::string > properties;
+			typedef std::unordered_map< std::string, std::string > properties;
 		private:
 			std::string default_binary_path_;
 			properties properties_;
