@@ -31,6 +31,7 @@ TEST_INIT
 	master_test_suite.add( BOOST_TEST_CASE( &property_reader_delete_value_tests ) );
 	master_test_suite.add( BOOST_TEST_CASE( &property_reader_rename_parameter_tests ) );
 	master_test_suite.add( BOOST_TEST_CASE( &property_reader_check_value_tests ) );
+	master_test_suite.add( BOOST_TEST_CASE( &property_reader_get_values_by_pattern_tests ) );
 
 	return TEST_RETURN;
 }

@@ -70,6 +70,23 @@ namespace system_utilities
 			}
 
 			strings get_values( const std::string& parameter_name, const std::string& delimeters = "," ) const;
+
+			template< class result_type >
+			std::unordered_map< std::string, result_type > get_values_by_pattern( const std::string& pattern )
+			{
+				const std::string pattern_with_dot = pattern + ".";
+				std::unordered_map< std::string, result_type > results;
+				std::for_each( properties_.begin(), properties_.end(), [ & ]( const properties::value_type& value ) 
+				{
+					const std::size_t found = value.first.find( pattern_with_dot );
+					if ( found != std::string::npos && found == 0 )
+					{
+						const result_type result = boost::lexical_cast< result_type >( value.second );
+						results.insert( std::make_pair( value.first.substr( pattern_with_dot.size() ), result ) );
+					}
+				} );
+				return results;
+			}
 			//
 			bool set_value( const std::string& parameter_name, const std::string& value );
 			template< class value_type >

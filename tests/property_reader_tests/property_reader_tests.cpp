@@ -431,6 +431,30 @@ namespace system_utilities
 				pr.set_value( "asd", false );
 				BOOST_CHECK_EQUAL( pr.check_value( "asd" ), true );
 			}
+
+			void property_reader_get_values_by_pattern_tests( )
+			{
+				property_reader pr;				
+				pr.set_value( "test.one", "1" );
+				pr.set_value( "test.two", "2" );
+				pr.set_value( "test.three", "3" );
+				pr.set_value( "test.four", "4" );
+
+				pr.set_value( "test1.five", "5" );
+				pr.set_value( "test1.six", "6" );				
+
+				const auto test_results = pr.get_values_by_pattern< size_t >( "test" );
+				BOOST_CHECK_EQUAL( test_results.size(), 4 );
+				BOOST_CHECK_EQUAL( test_results.find( "one" )->second, 1 );
+				BOOST_CHECK_EQUAL( test_results.find( "two" )->second, 2 );
+				BOOST_CHECK_EQUAL( test_results.find( "three" )->second, 3 );
+				BOOST_CHECK_EQUAL( test_results.find( "four" )->second, 4 );
+
+				const auto test1_results = pr.get_values_by_pattern< std::string >( "test1" );
+				BOOST_CHECK_EQUAL( test1_results.size( ), 2 );
+				BOOST_CHECK_EQUAL( test1_results.find( "five" )->second, "5" );
+				BOOST_CHECK_EQUAL( test1_results.find( "six" )->second, "6" );
+			}
 		}
 	}
 }
