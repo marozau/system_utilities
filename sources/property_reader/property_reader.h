@@ -72,7 +72,7 @@ namespace system_utilities
 			strings get_values( const std::string& parameter_name, const std::string& delimeters = "," ) const;
 
 			template< class result_type >
-			std::unordered_map< std::string, result_type > get_values_by_pattern( const std::string& pattern )
+			std::unordered_map< std::string, result_type > get_values_by_pattern( const std::string& pattern ) const
 			{
 				const std::string pattern_with_dot = pattern + ".";
 				std::unordered_map< std::string, result_type > results;
