@@ -28,6 +28,7 @@ namespace system_utilities
 			void property_reader_delete_value_tests();
 			void property_reader_rename_parameter_tests();
 			void property_reader_check_value_tests();
+			void property_reader_get_values_by_pattern_tests();
 		}
 	}
 }

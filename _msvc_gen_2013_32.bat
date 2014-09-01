@@ -1,7 +1,7 @@
 @echo off
 
 set SOLUTION_NAME=system_utilities
-set BOOST_ROOT=d:/usr/boost_1_55_0
+set BOOST_ROOT=d:/usr/boost_1_56_0
 
 set BUILD_TYPE=Debug
 if [%1]==[Release] (
