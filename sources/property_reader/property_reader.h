@@ -2,6 +2,7 @@
 #define _SYSTEM_UTILITIES_COMMON_PROPERTY_READER_H_
 
 #include <istream>
+#include <ostream>
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -22,7 +23,7 @@ namespace system_utilities
 
 		// property reader is a class that gaves you possibility to read simple configuration files
 		// tests for property reader to see usage examples
-
+		
         class property_reader
         {
 			friend class system_utilities::tests_::common::property_reader_test_helper;
@@ -107,7 +108,9 @@ namespace system_utilities
 			bool delete_value( const std::string& parameter_name );
 			bool rename_parameter( const std::string& old_parameter_name, const std::string& new_parameter_name );
 			bool check_value( const std::string& parameter_name ) const;
-	};
+			//
+			void print( std::ostream& os, const std::string& format ) const;
+		};
     }
 }
 

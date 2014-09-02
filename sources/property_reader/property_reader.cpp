@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 
 using namespace system_utilities::common;
 
@@ -248,4 +249,12 @@ bool property_reader::check_value( const std::string& parameter_name ) const
 {
 	properties::const_iterator i = properties_.find( parameter_name );
 	return (i != properties_.end());
+}
+
+void property_reader::print( std::ostream& os, const std::string& format ) const
+{
+	for ( const auto property : properties_ )
+	{
+		os << boost::format( format ) % property.first % property.second;
+	}
 }

@@ -455,6 +455,19 @@ namespace system_utilities
 				BOOST_CHECK_EQUAL( test1_results.find( "five" )->second, "5" );
 				BOOST_CHECK_EQUAL( test1_results.find( "six" )->second, "6" );
 			}
+			void property_reader_print_tests()
+			{
+				property_reader pr;
+				pr.set_value( "test.one", "1" );
+				pr.set_value( "test.two", "2" );
+				
+				std::stringstream ss;
+				
+				BOOST_CHECK_NO_THROW( pr.print( ss, "%1%:%2%; " ) );
+
+				BOOST_CHECK_EQUAL( ss.str(), "test.one:1; test.two:2; " );
+
+			}
 		}
 	}
 }
