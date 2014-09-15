@@ -68,64 +68,36 @@ namespace system_utilities
 				struct ts_queue_many_threads_test_helper
 				{
 					ts_queue_size_t mq_;
-					boost::mutex push_protector_;
-					size_t push_iterations_;
-
-					boost::mutex pop_protector_;
-					size_t pop_iterations_;
-					explicit ts_queue_many_threads_test_helper()
-						: push_iterations_( 0 )
-						, pop_iterations_( 0 )
+					
+					explicit ts_queue_many_threads_test_helper( const size_t push_threads, const size_t pop_threads, const size_t message_size )
 					{
-						const size_t push_threads = 12;
-						const size_t pop_threads = 6;
 						BOOST_CHECK_EQUAL( mq_.size(), (size_t)0 );
 						BOOST_CHECK_EQUAL( mq_.empty(), true );
 						boost::thread_group tg_push, tg_pop;
 						for (size_t i = 0 ; i < push_threads ; ++i)
-							tg_push.create_thread( boost::bind( &ts_queue_many_threads_test_helper::pusher, this ) );
+							tg_push.create_thread( boost::bind( &ts_queue_many_threads_test_helper::pusher, this, message_size ) );
+						const size_t total_message_size = message_size * push_threads;
+						const size_t to_pop = total_message_size / pop_threads;
 						for (size_t i = 0 ; i < pop_threads ; ++i)
-							tg_pop.create_thread( boost::bind( &ts_queue_many_threads_test_helper::poper, this ) );
-						for (size_t i = 0 ; i < 12 ; ++i)
-						{
-							boost::this_thread::sleep( boost::posix_time::milliseconds( 1200 ) );
-							boost::mutex::scoped_lock push_lock( push_protector_ );
-							boost::mutex::scoped_lock pop_lock( pop_protector_ );
-							BOOST_CHECK_EQUAL( push_iterations_ - pop_iterations_ > 0, true );
-						}
-						mq_.stop_processing();
+							tg_pop.create_thread( boost::bind( &ts_queue_many_threads_test_helper::poper, this, to_pop ) );
+						tg_push.join_all();						
 						tg_pop.join_all();
-						tg_push.join_all();
+						mq_.stop_processing();
 					}
-					void pusher()
+					void pusher( const size_t size )
 					{
-						while (true)
+						for ( size_t i = 0; i < size; ++i )
 						{
 							size_t * s = new size_t( rand() % 100000 );
-							bool res = mq_.push( s );
-							if (!res)
-							{
-								delete s;
-								break;
-							}
-							{
-								boost::mutex::scoped_lock lock( push_protector_ );
-								push_iterations_ ++;
-							}
+							mq_.push( s );							
 						}
 					}
-					void poper()
+					void poper( const size_t size )
 					{
-						while (true)
+						for ( size_t i = 0; i < size; ++i )
 						{
 							size_t* s = mq_.wait_pop();
-							if (!s)
-								break;
 							delete s;
-							{
-								boost::mutex::scoped_lock lock( pop_protector_ );
-								pop_iterations_ ++;
-							}
 						}
 					}
 				};
@@ -173,7 +145,19 @@ namespace system_utilities
 			}
 			void ts_queue_many_threads_tests()
 			{
-				details::ts_queue_many_threads_test_helper helper;
+				{
+					time_tracker< std::chrono::milliseconds > tt;
+					details::ts_queue_many_threads_test_helper helper( 4, 4, 100000 );
+					const auto time = tt.elapsed();
+					BOOST_CHECK_EQUAL( time, 100 );
+				}
+				{
+					time_tracker< std::chrono::milliseconds > tt;
+					details::ts_queue_many_threads_test_helper helper( 4, 1, 100000 );
+					const auto time = tt.elapsed();
+					BOOST_CHECK_EQUAL( time, 100 );
+				}
+
 			}
 			void ts_queue_wait_tests()
 			{
