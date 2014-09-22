@@ -116,16 +116,30 @@ namespace system_utilities
 			}
 			void spsc_queue_different_threads_tests()
 			{
-				details::spsc_queue_size_t mq;
-				const size_t different_threads_test_size = 1000000;
-				boost::thread pop = boost::thread( boost::bind( &details::spsc_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
-				using namespace boost::posix_time;
-				for ( size_t i = 0; i < different_threads_test_size; i++ )
 				{
-					mq.push( new size_t( i ) );
+					details::spsc_queue_size_t mq;
+					const size_t different_threads_test_size = 1000000;
+					boost::thread pop = boost::thread( boost::bind( &details::spsc_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
+					using namespace boost::posix_time;
+					for ( size_t i = 0; i < different_threads_test_size; i++ )
+					{
+						mq.push( new size_t( i ) );
+					}
+					pop.join();
+					BOOST_CHECK_EQUAL( mq.empty(), true );
 				}
-				pop.join();
-				BOOST_CHECK_EQUAL( mq.empty(), true );
+				{
+					details::spsc_queue_size_t mq( [](){ boost::this_thread::sleep( boost::posix_time::milliseconds( 50 ) ); } );
+					const size_t different_threads_test_size = 1000000;
+					boost::thread pop = boost::thread( boost::bind( &details::spsc_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
+					using namespace boost::posix_time;
+					for ( size_t i = 0; i < different_threads_test_size; i++ )
+					{
+						mq.push( new size_t( i ) );
+					}
+					pop.join();
+					BOOST_CHECK_EQUAL( mq.empty(), true );
+				}
 			}
 			void spsc_queue_wait_pop_tests()
 			{

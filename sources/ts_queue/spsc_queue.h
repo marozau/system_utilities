@@ -2,6 +2,7 @@
 #define _SYSTEM_UTILITIES_COMMON_SPSC_QUEUE_H_
 
 #include <atomic>
+#include <functional>
 
 #include <boost/lockfree/spsc_queue.hpp>
 
@@ -30,8 +31,17 @@ namespace system_utilities
 			
 			std::atomic_bool stopping_;
 
+			typedef std::function< void() > wait_strategy;
+			wait_strategy wait_strategy_;
+
 		public:
 			explicit spsc_queue()
+				: wait_strategy_( []() {} )
+			{
+				stopping_ = false;
+			}
+			explicit spsc_queue( wait_strategy ws )
+				: wait_strategy_( ws )
 			{
 				stopping_ = false;
 			}
@@ -68,7 +78,7 @@ namespace system_utilities
             void wait()
             {
 				while ( queue_.empty() && !stopping_ )
-					;
+					wait_strategy_();
             }
 			// push() method: push message into queue
 			// if stop(), stop_processing() method was called before - returns immediatly
@@ -80,7 +90,11 @@ namespace system_utilities
 				if (stopping_)
 					return false;
 				while ( !queue_.push( val ) )
-					;
+				{
+					if ( stopping_ )
+						return false;
+				}
+					
 				return true;
 			}
 			// pop() message returns pointer to message that was in queue
@@ -125,7 +139,7 @@ namespace system_utilities
 					return NULL;
 				value_type value = NULL;
 				while ( !queue_.pop( value ) && !stopping_ )
-					;
+					wait_strategy_();
 				return value;
 			}
 			// size() method: returns 0 if queue is going to stop

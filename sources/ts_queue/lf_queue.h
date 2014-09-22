@@ -2,6 +2,7 @@
 #define _SYSTEM_UTILITIES_COMMON_LF_QUEUE_H_
 
 #include <atomic>
+#include <functional>
 
 #include <boost/lockfree/queue.hpp>
 
@@ -30,9 +31,17 @@ namespace system_utilities
 
 			std::atomic_bool stopping_;
 
+			typedef std::function< void() > wait_strategy;
+			wait_strategy wait_strategy_;
+
 		public:
-			explicit lf_queue( const size_t size = 1024 )
-				: queue_( size )
+			explicit lf_queue()
+				: wait_strategy_( []() {} )
+			{
+				stopping_ = false;
+			}
+			explicit lf_queue( wait_strategy&& ws )
+				: wait_strategy_( ws )
 			{
 				stopping_ = false;
 			}
@@ -69,7 +78,7 @@ namespace system_utilities
 			void wait()
 			{
 				while ( queue_.empty() && !stopping_ )
-					;
+					wait_strategy_();
 			}
 			// push() method: push message into queue
 			// if stop(), stop_processing() method was called before - returns immediatly
@@ -81,7 +90,10 @@ namespace system_utilities
 				if ( stopping_ )
 					return false;
 				while ( !queue_.push( val ) )
-					;
+				{
+					if ( stopping_ )
+						return false;
+				}
 				return true;
 			}
 			// pop() message returns pointer to message that was in queue
@@ -126,7 +138,7 @@ namespace system_utilities
 					return NULL;
 				value_type value = NULL;
 				while ( !queue_.pop( value ) && !stopping_ )
-					;
+					wait_strategy_();
 				return value;
 			}
 			// empty() method: return true if queue is going to stop

@@ -37,6 +37,25 @@ namespace system_utilities
 					}
 					BOOST_CHECK_EQUAL( mq.empty(), true );
 				}
+				void lf_queue_constructor_test_helper_with_wait_strategy()
+				{
+					lf_queue< size_t > mq( [](){ boost::this_thread::sleep( boost::posix_time::milliseconds( 50 ) ); } );
+					for ( int i = 1; i < 10; i++ )
+						mq.push( new size_t( i ) );
+					size_t *s = mq.pop();
+					BOOST_CHECK_EQUAL( *s, ( size_t )1 );
+					delete s;
+					for ( int i = 10; i < 14; i++ )
+						mq.push( new size_t( i ) );
+					size_t i = 2;
+					while ( !mq.empty() )
+					{
+						size_t* s = mq.pop();
+						BOOST_CHECK_EQUAL( *s, i++ );
+						delete s;
+					}
+					BOOST_CHECK_EQUAL( mq.empty(), true );
+				}
 				typedef lf_queue< size_t > lf_queue_size_t;
 				void lf_queue_different_threads_pop_thread_helper( lf_queue_size_t* mq, const size_t different_threads_test_size )
 				{
@@ -113,19 +132,34 @@ namespace system_utilities
 			{
 				lf_queue< int > queue;
 				details::lf_queue_constructor_test_helper();
+				details::lf_queue_constructor_test_helper_with_wait_strategy();
 			}
 			void lf_queue_different_threads_tests()
 			{
-				details::lf_queue_size_t mq;
-				const size_t different_threads_test_size = 1000000;
-				boost::thread pop = boost::thread( boost::bind( &details::lf_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
-				using namespace boost::posix_time;
-				for (size_t i = 0 ; i < different_threads_test_size ; i++)
 				{
-					mq.push( new size_t(i) );
+					details::lf_queue_size_t mq;
+					const size_t different_threads_test_size = 1000000;
+					boost::thread pop = boost::thread( boost::bind( &details::lf_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
+					using namespace boost::posix_time;
+					for ( size_t i = 0; i < different_threads_test_size; i++ )
+					{
+						mq.push( new size_t( i ) );
+					}
+					pop.join();
+					BOOST_CHECK_EQUAL( mq.empty(), true );
 				}
-				pop.join();
-				BOOST_CHECK_EQUAL( mq.empty(), true );
+				{
+					details::lf_queue_size_t mq( [](){ boost::this_thread::sleep( boost::posix_time::milliseconds( 50 ) ); } );
+					const size_t different_threads_test_size = 1000000;
+					boost::thread pop = boost::thread( boost::bind( &details::lf_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
+					using namespace boost::posix_time;
+					for ( size_t i = 0; i < different_threads_test_size; i++ )
+					{
+						mq.push( new size_t( i ) );
+					}
+					pop.join();
+					BOOST_CHECK_EQUAL( mq.empty(), true );
+				}
 			}
 			void lf_queue_wait_pop_tests()
 			{
