@@ -12,12 +12,12 @@ namespace system_utilities
 
     namespace common
     {
-		template< class T, const size_t size >
+		template< class T, const size_t size = 1024 >
 		class spsc_queue
 		{
 			typedef T* element_ptr;
 
-			typedef boost::lockfree::spsc_queue< element_ptr, boost::lockfree::capacity<size> > queue;			
+			typedef boost::lockfree::spsc_queue< element_ptr, boost::lockfree::capacity< size > > queue;			
 
 			explicit spsc_queue( const spsc_queue& );
 			spsc_queue& operator=(const spsc_queue&);

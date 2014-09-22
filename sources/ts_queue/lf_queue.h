@@ -12,12 +12,12 @@ namespace system_utilities
 
 	namespace common
 	{
-		template< class T >
+		template< class T, size_t size  = 1024 >
 		class lf_queue
 		{
 			typedef T* element_ptr;
 
-			typedef boost::lockfree::queue< element_ptr > queue;
+			typedef boost::lockfree::queue< element_ptr, boost::lockfree::capacity< size > > queue;
 
 			explicit lf_queue( const lf_queue& );
 			lf_queue& operator=(const lf_queue&);
