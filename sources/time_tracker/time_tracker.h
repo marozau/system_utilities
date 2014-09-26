@@ -39,7 +39,7 @@ namespace system_utilities
 			long long elapsed() const
 			{
 				using namespace std::chrono;
-				auto now = duration_cast< T >(high_resolution_clock::now( ).time_since_epoch()).count( );
+				const auto now = duration_cast< T >(high_resolution_clock::now( ).time_since_epoch()).count( );
 				return now - start_.load( );
 			}
 		};

@@ -141,6 +141,11 @@ namespace system_utilities
 					wait_strategy_();
 				return value;
 			}
+			// size() method: returns zero as lock free queue doesn't support 'size' operation
+			size_t size() const
+			{
+				return 0;
+			}
 			// empty() method: return true if queue is going to stop
 			// returns false is queue.size() > 0
 			bool empty()
