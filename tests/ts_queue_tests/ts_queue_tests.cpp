@@ -6,8 +6,6 @@
 #include <ts_queue.h>
 #include <time_tracker.h>
 
-#include <boost/thread.hpp>
-
 using namespace system_utilities::common;
 
 namespace system_utilities

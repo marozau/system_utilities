@@ -24,8 +24,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/_cmake_scripts")
 include( utils )
 
 test_variable_on_existance( SOLUTION_NAME )
-test_variable_on_existance( CMAKE_BUILD_TYPE )
-test_variable_on_equal_to_one_of_the_list( CMAKE_BUILD_TYPE Release Debug ReleaseWithDebugInfo )
+#test_variable_on_existance( CMAKE_BUILD_TYPE )
+#test_variable_on_equal_to_one_of_the_list( CMAKE_BUILD_TYPE Release Debug ReleaseWithDebugInfo )
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 	option( Debug "user choose debug" ON )

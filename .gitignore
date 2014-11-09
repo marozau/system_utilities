@@ -1,2 +1,3 @@
 _build_*
 _start_msvc.bat
+/.idea
