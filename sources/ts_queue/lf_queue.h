@@ -12,12 +12,12 @@ namespace system_utilities
 
 	namespace common
 	{
-		template< class T, size_t size  = 1024 >
+		template< class T, size_t SIZE = 1024 >
 		class lf_queue
 		{
 			typedef T* element_ptr;
 
-			typedef boost::lockfree::queue< element_ptr > queue;
+			typedef boost::lockfree::queue< element_ptr, boost::lockfree::capacity< SIZE > > queue;
 
 			explicit lf_queue( const lf_queue& );
 			lf_queue& operator=(const lf_queue&);
@@ -31,8 +31,7 @@ namespace system_utilities
 			std::atomic_bool stopping_;
 
 		public:
-			explicit lf_queue( const size_t size = 1024 )
-				: queue_( size )
+			explicit lf_queue()
 			{
 				stopping_ = false;
 			}
@@ -80,15 +79,25 @@ namespace system_utilities
 			{
 				if ( stopping_ )
 					return false;
-				while ( !queue_.push( val ) )
+				while ( !queue_.push( val ) && !stopping_ )
 					;
 				return true;
+			}
+			// try_push() method: push message into queue
+			// if stop(), stop_processing() method was called before - returns immediatly
+			// returns true - if message was added to queue
+			// returns false - if message was not added to queue, check this parameter it could be reason of memory leak
+			// this method is thread safe
+			bool try_push( value_type val )
+			{
+				if ( stopping_ )
+					return false;
+				return queue_.push( val );
 			}
 			// pop() message returns pointer to message that was in queue
 			// returns pointer to message or NULL
 			// if queue is empty - returns NULL
 			// it does not wait for push - just return NULL if there is no messages into queue
-			// this method is thread safe
 			value_type pop()
 			{
 				if ( queue_.empty() )
@@ -98,12 +107,11 @@ namespace system_utilities
 					return NULL;
 				return value;
 			}
-			// ts_pop() message returns pointer to message that was in queue
+			// try_pop() message returns pointer to message that was in queue
 			// returns pointer to message or NULL
 			// if queue is empty - returns NULL
 			// it does not wait for push - just return NULL if there is no messages into queue
-			// this method is not thread safe!
-			value_type ts_pop()
+			value_type try_pop()
 			{
 				if ( stopping_ )
 					return NULL;
@@ -119,7 +127,6 @@ namespace system_utilities
 			// if queue is empty, wait until stop(), stop_processing(), push() will be called.
 			// if queue is stopping - return NULL
 			// this method wait for push
-			// this method is not thread safe!
 			value_type wait_pop()
 			{
 				if ( stopping_ )

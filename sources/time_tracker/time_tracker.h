@@ -15,13 +15,17 @@ namespace system_utilities
 		template< class T >
 		class time_tracker
 		{
+		public:
+			typedef long long elapsed_type;
+
+		private:
 			std::atomic< long long > start_;
 			
 		public:
 			explicit time_tracker()				
 			{
 				using namespace std::chrono;
-				start_ = duration_cast< T >(high_resolution_clock::now( ).time_since_epoch() ).count();
+				start_ = duration_cast< T >( high_resolution_clock::now( ).time_since_epoch() ).count();
 			}
 			time_tracker( const time_tracker& other )			
 				: start_( other.start_ )
@@ -34,13 +38,13 @@ namespace system_utilities
 			void reset()
 			{
 				using namespace std::chrono;
-				start_.exchange( duration_cast< T >(high_resolution_clock::now().time_since_epoch()).count() );
+				start_.exchange( duration_cast< T >( high_resolution_clock::now().time_since_epoch()).count(), std::memory_order::memory_order_release );
 			}
-			long long elapsed() const
+			elapsed_type elapsed() const
 			{
 				using namespace std::chrono;
 				auto now = duration_cast< T >(high_resolution_clock::now( ).time_since_epoch()).count( );
-				return now - start_.load( );
+				return now - start_.load( std::memory_order::memory_order_acquire );
 			}
 		};
 	}
