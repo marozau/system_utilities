@@ -17,7 +17,7 @@ namespace system_utilities
 		{
 			typedef T* element_ptr;
 
-			typedef boost::lockfree::spsc_queue< element_ptr, boost::lockfree::capacity< SIZE > > queue;
+			typedef boost::lockfree::spsc_queue< element_ptr, boost::lockfree::capacity< SIZE > > queue;			
 
 			explicit spsc_queue( const spsc_queue& );
 			spsc_queue& operator=(const spsc_queue&);

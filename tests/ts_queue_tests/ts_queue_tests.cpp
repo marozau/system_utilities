@@ -1,7 +1,5 @@
 #include "test_registrator.h"
 
-#include <Windows.h>
-
 #include <deque>
 #include <queue>
 

@@ -47,8 +47,8 @@ namespace system_utilities
 					for ( size_t i = 0 ; i < 3 ; ++i )
 					{
 						boost::this_thread::sleep( boost::posix_time::milliseconds( 1001 ) );
-						BOOST_CHECK_EQUAL( tt.elapsed() >= (i + 1), true );
-						BOOST_CHECK_EQUAL( tt.elapsed() < (i + 1) + 2, true );
+						BOOST_CHECK_EQUAL( tt.elapsed() >= static_cast< long long >(i + 1), true );
+						BOOST_CHECK_EQUAL( tt.elapsed() < static_cast< long long >(i + 1) + 2, true );
 					}
 				}
 			}
