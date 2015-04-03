@@ -98,7 +98,7 @@ bool property_reader::read_sub_property_file( const std::string& file_name )
 }
 bool property_reader::string_with_setting( const std::string& str )
 {
-	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_\\\\]+)\\s*\\=\\s*(.+)\\s*" );
+	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_\\\\/]+)\\s*\\=\\s*(.+)\\s*" );
 	boost::smatch matching;
 
 	if ( boost::regex_match( str, matching, string_with_setting ) )
@@ -117,7 +117,7 @@ bool property_reader::string_with_setting( const std::string& str )
 }
 bool property_reader::additional_string_with_setting( const std::string& str )
 {
-	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_\\\\]+)\\s*\\+\\=\\s*(.+)\\s*" );
+	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_\\\\/]+)\\s*\\+\\=\\s*(.+)\\s*" );
 	boost::smatch matching;
 
 	if ( boost::regex_match( str, matching, string_with_setting ) )

@@ -91,6 +91,8 @@ namespace system_utilities
 					BOOST_CHECK_EQUAL( string_with_setting( " world = " ), true );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001_help = " ), true );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001_help2 = Any text%^&*# representation, r.rg, rtht" ), true );
+					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001/help3 = 123" ), true );
+					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001\\help4 = 123" ), true );
 					BOOST_CHECK_EQUAL( properties_[ "My.Parameter.001_help2" ], "Any text%^&*# representation, r.rg, rtht" );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.,001_help2 = Any text%^&*# representation, r.rg, rtht" ), false );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.-001_help2 = Any text%^&*# representation, r.rg, rtht" ), false );
