@@ -12,6 +12,12 @@ TEST_INIT
 	master_test_suite.add( BOOST_TEST_CASE( &ts_queue_wait_pop_tests ) );
 	master_test_suite.add( BOOST_TEST_CASE( &ts_queue_another_container_tests ) );
 
+	master_test_suite.add( BOOST_TEST_CASE( &tsstd_queue_constructor_tests ) );
+	master_test_suite.add( BOOST_TEST_CASE( &tsstd_queue_push_limit_tests ) );
+	master_test_suite.add( BOOST_TEST_CASE( &tsstd_queue_different_threads_tests ) );
+	master_test_suite.add( BOOST_TEST_CASE( &tsstd_queue_wait_pop_tests ) );
+	master_test_suite.add( BOOST_TEST_CASE( &tsstd_queue_another_container_tests ) );
+
 	master_test_suite.add( BOOST_TEST_CASE( &lf_queue_constructor_tests ) );
 	master_test_suite.add( BOOST_TEST_CASE( &lf_queue_different_threads_tests ) );
 	master_test_suite.add( BOOST_TEST_CASE( &lf_queue_wait_pop_tests ) );
@@ -22,6 +28,7 @@ TEST_INIT
 
 #ifdef RUN_PERFORMANCE_TESTS
 	master_test_suite.add( BOOST_TEST_CASE( &ts_queue_many_threads_tests ) );
+	master_test_suite.add( BOOST_TEST_CASE( &tsstd_queue_many_threads_tests ) );
 	master_test_suite.add( BOOST_TEST_CASE( &lf_queue_many_threads_tests ) );
 	master_test_suite.add( BOOST_TEST_CASE( &spsc_queue_many_threads_tests ) );
 #endif
