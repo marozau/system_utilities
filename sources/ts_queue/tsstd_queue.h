@@ -4,6 +4,7 @@
 #include <deque>
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 
 namespace system_utilities
 {
@@ -39,26 +40,26 @@ namespace system_utilities
 			std::condition_variable push_;
 			std::condition_variable wait_;
 
-			volatile bool stopping_;
+			std::atomic_bool stopping_;
 
 		public:
 			explicit tsstd_queue( const size_t size = 128 )
 				: size_( size )
 				, queue_()				
-				, stopping_( false )
 			{
+				stopping_.store( false, std::memory_order::memory_order_release );
 			}
 			// restart method: stop queue from processing, clead queue (with deleting not processed elements by delete)
 			void restart()
 			{
 				stop_processing();
-				stopping_ = false;
+				stopping_.store( false, std::memory_order::memory_order_release );
 			}
 			// stop method: stop queue, notify wait() and ts_pop() methods that wait for messages or result of processing
 			// this method is thread safe
 			void stop()
 			{
-				stopping_ = true;
+				stopping_.store( true, std::memory_order::memory_order_release );
 				std::unique_lock<std::mutex> lock( queue_protector_ );
 				push_.notify_all();
 				wait_.notify_all();
@@ -67,7 +68,7 @@ namespace system_utilities
 			// this method is thread safe
 			void stop_processing()
 			{
-				stopping_ = true;
+				stopping_.store( true, std::memory_order::memory_order_release );
 				std::unique_lock<std::mutex> lock( queue_protector_ );
 				while ( !queue_.empty() )
 				{
@@ -88,10 +89,10 @@ namespace system_utilities
 			// this method is thread safe
 			void wait()
 			{
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return;
 				std::unique_lock<std::mutex> lock( queue_protector_ );
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return;
 				while ( !queue_.empty() && !stopping_ )
 					wait_.wait( lock );
@@ -103,10 +104,28 @@ namespace system_utilities
 			// this method is thread safe
 			bool push( value_type val )
 			{
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return false;
 				std::unique_lock<std::mutex> lock( queue_protector_ );
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
+					return false;
+				queue_.push_back( val );
+				lock.unlock();
+				push_.notify_one();
+				return true;
+			}
+
+			// push() method: push message into queue
+			// if stop(), stop_processing() method was called before - returns immediatly
+			// returns true - if message was added to queue
+			// returns false - if message was not added to queue, check this parameter it could be reason of memory leak
+			// this method is thread safe
+			bool try_push( value_type val )
+			{
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
+					return false;
+				std::unique_lock<std::mutex> lock( queue_protector_ );
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return false;
 				if ( queue_.size() >= size_ )
 					return false;
@@ -140,10 +159,10 @@ namespace system_utilities
 			// this method is not thread safe!
 			value_type ts_pop()
 			{
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return NULL;
 				std::unique_lock<std::mutex> lock( queue_protector_ );
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return NULL;
 				if ( queue_.empty() )
 					return NULL;
@@ -161,15 +180,15 @@ namespace system_utilities
 			// this method is not thread safe!
 			value_type wait_pop()
 			{
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return NULL;
 				std::unique_lock<std::mutex> lock( queue_protector_ );
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return NULL;
 				while ( queue_.empty() )
 				{
 					push_.wait( lock );
-					if ( stopping_ )
+					if ( stopping_.load( std::memory_order::memory_order_consume ) )
 						return NULL;
 				}
 				value_type result = queue_.front();
@@ -181,7 +200,7 @@ namespace system_utilities
 			// size() method: returns 0 if queue is going to stop
 			size_t size() const
 			{
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return 0;
 				std::unique_lock<std::mutex> lock( queue_protector_ );
 				return queue_.size();
@@ -197,7 +216,7 @@ namespace system_utilities
 			// returns false is queue.size() > 0
 			bool empty() const
 			{
-				if ( stopping_ )
+				if ( stopping_.load( std::memory_order::memory_order_consume ) )
 					return true;
 				std::unique_lock<std::mutex> lock( queue_protector_ );
 				return queue_.empty();
