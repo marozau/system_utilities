@@ -32,8 +32,8 @@ namespace system_utilities
 		private:
 			std::string default_binary_path_;
 			properties properties_;
-            property_reader( const property_reader& );
-			property_reader& operator=( const property_reader& );
+            property_reader( const property_reader& ) = default;			
+			property_reader& operator=( const property_reader& ) = default;
 		public:
 			explicit property_reader();
 			explicit property_reader( const std::string& file_name, const std::string& default_binary_path = "" );
@@ -110,6 +110,8 @@ namespace system_utilities
 			bool check_value( const std::string& parameter_name ) const;
 			//
 			void print( std::ostream& os, const std::string& format ) const;
+			//
+			void diff( const property_reader& other, property_reader& result ) const;
 		};
     }
 }

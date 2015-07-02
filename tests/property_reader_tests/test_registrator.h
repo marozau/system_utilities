@@ -30,6 +30,7 @@ namespace system_utilities
 			void property_reader_check_value_tests();
 			void property_reader_get_values_by_pattern_tests();
 			void property_reader_print_tests();
+			void property_reader_diff_tests();
 		}
 	}
 }

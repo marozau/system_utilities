@@ -22,7 +22,7 @@ namespace system_utilities
 					for ( size_t i = 0 ; i < size ; ++i )
 						logger->note() << "qwerasdfzxcvkjhgiyt7654";
 				}
-				void queue_logger_write_test_helper( const size_t amount_of_messages_per_thread, const size_t time )
+				void queue_logger_write_test_helper( const size_t amount_of_messages_per_thread, const long long time )
 				{
 					static const size_t processors_thread_size = 4;
 					static const size_t thread_per_log = 4;

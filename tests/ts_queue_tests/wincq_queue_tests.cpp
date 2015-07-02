@@ -3,7 +3,7 @@
 #include <deque>
 #include <queue>
 
-#include <ts_queue.h>
+#include <wincq_queue.h>
 #include <time_tracker.h>
 
 #include <boost/thread.hpp>
@@ -18,9 +18,9 @@ namespace system_utilities
 		{
 			namespace details
 			{
-				void ts_queue_constructor_test_helper()
+				void wincq_queue_constructor_test_helper()
 				{
-					ts_queue< size_t > mq;
+					wincq_queue< size_t > mq;
 					for (int i = 1 ; i < 10 ; i ++)
 						mq.push( new size_t(i) );
 					size_t *s = mq.pop();
@@ -37,8 +37,8 @@ namespace system_utilities
 					}
 					BOOST_CHECK_EQUAL( mq.empty(), true );
 				}
-				typedef ts_queue< size_t > ts_queue_size_t;
-				void ts_queue_different_threads_pop_thread_helper( ts_queue_size_t* mq, const size_t different_threads_test_size )
+				typedef wincq_queue< size_t > wincq_queue_size_t;
+				void wincq_queue_different_threads_pop_thread_helper( wincq_queue_size_t* mq, const size_t different_threads_test_size )
 				{
 					boost::this_thread::sleep( boost::posix_time::milliseconds( 20 ) );
 					size_t i = 0;
@@ -51,9 +51,8 @@ namespace system_utilities
 					}
 					BOOST_CHECK_EQUAL( i, different_threads_test_size );
 					BOOST_CHECK_EQUAL( mq->empty(), true );
-					BOOST_CHECK_EQUAL( mq->size(), (size_t)0 );
 				}
-				void ts_queue_wait_pop_test_helper( ts_queue_size_t* mq )
+				void wincq_queue_wait_pop_test_helper( wincq_queue_size_t* mq )
 				{
 					time_tracker< std::chrono::seconds > tt;
 					using namespace boost::posix_time;
@@ -62,23 +61,21 @@ namespace system_utilities
 					delete s;
 					BOOST_CHECK_EQUAL( tt.elapsed() >= 1, true );
 					BOOST_CHECK_EQUAL( mq->empty(), true );
-					BOOST_CHECK_EQUAL( mq->size(), (size_t)0 );
 				}
-				struct ts_queue_many_threads_test_helper
+				struct wincq_queue_many_threads_test_helper
 				{
-					ts_queue_size_t mq_;
+					wincq_queue_size_t mq_;
 					
-					explicit ts_queue_many_threads_test_helper( const size_t push_threads, const size_t pop_threads, const size_t message_size )
+					explicit wincq_queue_many_threads_test_helper( const size_t push_threads, const size_t pop_threads, const size_t message_size )
 					{
-						BOOST_CHECK_EQUAL( mq_.size(), (size_t)0 );
 						BOOST_CHECK_EQUAL( mq_.empty(), true );
 						boost::thread_group tg_push, tg_pop;
 						for (size_t i = 0 ; i < push_threads ; ++i)
-							tg_push.create_thread( boost::bind( &ts_queue_many_threads_test_helper::pusher, this, message_size ) );
+							tg_push.create_thread( boost::bind( &wincq_queue_many_threads_test_helper::pusher, this, message_size ) );
 						const size_t total_message_size = message_size * push_threads;
 						const size_t to_pop = total_message_size / pop_threads;
 						for (size_t i = 0 ; i < pop_threads ; ++i)
-							tg_pop.create_thread( boost::bind( &ts_queue_many_threads_test_helper::poper, this, to_pop ) );
+							tg_pop.create_thread( boost::bind( &wincq_queue_many_threads_test_helper::poper, this, to_pop ) );
 						tg_push.join_all();						
 						tg_pop.join_all();
 						mq_.stop_processing();
@@ -100,7 +97,7 @@ namespace system_utilities
 						}
 					}
 				};
-				void ts_queue_wait_test_helper(details::ts_queue_size_t* mq_, size_t* pop_iterations_)
+				void wincq_queue_wait_test_helper(details::wincq_queue_size_t* mq_, size_t* pop_iterations_)
 				{
 					while (true)
 					{
@@ -112,16 +109,16 @@ namespace system_utilities
 					}
 				}
 			}
-			void ts_queue_constructor_tests()
+			void wincq_queue_constructor_tests()
 			{
-				ts_queue< int > queue;
-				details::ts_queue_constructor_test_helper();
+				wincq_queue< int > queue;
+				details::wincq_queue_constructor_test_helper();
 			}
-			void ts_queue_different_threads_tests()
+			void wincq_queue_different_threads_tests()
 			{
-				details::ts_queue_size_t mq;
+				details::wincq_queue_size_t mq;
 				const size_t different_threads_test_size = 1000000;
-				boost::thread pop = boost::thread( boost::bind( &details::ts_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
+				boost::thread pop = boost::thread( boost::bind( &details::wincq_queue_different_threads_pop_thread_helper, &mq, different_threads_test_size ) );
 				using namespace boost::posix_time;
 				for (size_t i = 0 ; i < different_threads_test_size ; i++)
 				{
@@ -130,39 +127,36 @@ namespace system_utilities
 				pop.join();
 				BOOST_CHECK_EQUAL( mq.empty(), true );
 			}
-			void ts_queue_wait_pop_tests()
+			void wincq_queue_wait_pop_tests()
 			{
-				details::ts_queue_size_t mq;
+				details::wincq_queue_size_t mq;
 				BOOST_CHECK_EQUAL( mq.empty(), true );
-				BOOST_CHECK_EQUAL( mq.size(), (size_t)0 );
-				boost::thread pop = boost::thread( boost::bind( &details::ts_queue_wait_pop_test_helper, &mq ) );
+				boost::thread pop = boost::thread( boost::bind( &details::wincq_queue_wait_pop_test_helper, &mq ) );
 				boost::this_thread::sleep( boost::posix_time::milliseconds( 1200 ) );
 				mq.push( new size_t(15) );
 				pop.join();
 				BOOST_CHECK_EQUAL( mq.empty(), true );
-				BOOST_CHECK_EQUAL( mq.size(), (size_t)0 );
 			}
-			void ts_queue_many_threads_tests()
+			void wincq_queue_many_threads_tests()
 			{
 				const size_t message_amount = 1000000;
 				{
 					time_tracker< std::chrono::milliseconds > tt;
-					details::ts_queue_many_threads_test_helper helper( 4, 4, message_amount );
+					details::wincq_queue_many_threads_test_helper helper( 4, 4, message_amount );
 					const auto time = tt.elapsed();
 					BOOST_CHECK_EQUAL( time, 100 );
 				}
 				{
 					time_tracker< std::chrono::milliseconds > tt;
-					details::ts_queue_many_threads_test_helper helper( 4, 1, message_amount );
+					details::wincq_queue_many_threads_test_helper helper( 4, 1, message_amount );
 					const auto time = tt.elapsed();
 					BOOST_CHECK_EQUAL( time, 100 );
 				}
 			}
-			void ts_queue_wait_tests()
+			void wincq_queue_wait_tests()
 			{
-				details::ts_queue_size_t mq;
+				details::wincq_queue_size_t mq;
 				mq.restart();
-				BOOST_CHECK_EQUAL( mq.size(), (size_t)0 );
 				BOOST_CHECK_EQUAL( mq.empty(), true );
 				const size_t size = 1000000;
 				for(size_t i = 0 ; i < size ; ++i )
@@ -170,22 +164,12 @@ namespace system_utilities
 					size_t* s = new size_t(i);
 					mq.push( s );
 				}
-				BOOST_CHECK_EQUAL( mq.size(), (size_t)size );
+				BOOST_CHECK_EQUAL( mq.empty(), false );
 				size_t pop_iterations_ = 0;
-				boost::thread poper( boost::bind( &details::ts_queue_wait_test_helper, &mq, &pop_iterations_ ) );
-				mq.wait();
+				boost::thread poper( boost::bind( &details::wincq_queue_wait_test_helper, &mq, &pop_iterations_ ) );
 				mq.stop();
 				poper.join();
 				BOOST_CHECK_EQUAL(pop_iterations_, size);
-			}
-
-			void ts_queue_another_container_tests()
-			{
-				ts_queue< int, std::deque > deque_ts;
-				deque_ts.push( new int(5) );
-				int* a = deque_ts.pop();
-				BOOST_CHECK_EQUAL( *a, 5 );
-				delete a;
 			}
 		}
 	}

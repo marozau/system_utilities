@@ -91,6 +91,8 @@ namespace system_utilities
 					BOOST_CHECK_EQUAL( string_with_setting( " world = " ), true );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001_help = " ), true );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001_help2 = Any text%^&*# representation, r.rg, rtht" ), true );
+					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001/help3 = 123" ), true );
+					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.001\\help4 = 123" ), true );
 					BOOST_CHECK_EQUAL( properties_[ "My.Parameter.001_help2" ], "Any text%^&*# representation, r.rg, rtht" );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.,001_help2 = Any text%^&*# representation, r.rg, rtht" ), false );
 					BOOST_CHECK_EQUAL( string_with_setting( " My.Parameter.-001_help2 = Any text%^&*# representation, r.rg, rtht" ), false );
@@ -467,6 +469,30 @@ namespace system_utilities
 
 				BOOST_CHECK_EQUAL( ss.str(), "test.one:1; test.two:2; " );
 
+			}
+
+			void property_reader_diff_tests()
+			{
+				property_reader pr1;
+				pr1.set_value( "test.one", "1" );
+				pr1.set_value( "test.two", "2" );
+
+				property_reader pr2;
+				pr2.set_value( "test.one", "1" );
+				pr2.set_value( "test.two", "2" );
+
+				property_reader result;
+				pr1.diff( pr2, result );
+				BOOST_CHECK_EQUAL( result.size(), 0 );
+
+				pr2.set_value( "test.one", "2" );
+				pr2.set_value( "test.three", "2" );
+				pr2.delete_value( "test.two" );
+				pr1.diff( pr2, result );
+				BOOST_CHECK_EQUAL( result.size(), 3 );
+				result.check_value( "changed - test.one" );
+				result.check_value( "removed - test.two" );
+				result.check_value( "added   - test.three" );
 			}
 		}
 	}

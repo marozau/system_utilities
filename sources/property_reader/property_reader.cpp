@@ -27,6 +27,7 @@ property_reader::property_reader( std::istream& stream, const std::string& defau
 {
 	parse_istream( stream );
 }
+
 void property_reader::parse_istream( std::istream& stream )
 {
 	size_t line_counter = 0;
@@ -98,7 +99,7 @@ bool property_reader::read_sub_property_file( const std::string& file_name )
 }
 bool property_reader::string_with_setting( const std::string& str )
 {
-	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_]+)\\s*\\=\\s*(.+)\\s*" );
+	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_\\\\/]+)\\s*\\=\\s*(.+)\\s*" );
 	boost::smatch matching;
 
 	if ( boost::regex_match( str, matching, string_with_setting ) )
@@ -117,7 +118,7 @@ bool property_reader::string_with_setting( const std::string& str )
 }
 bool property_reader::additional_string_with_setting( const std::string& str )
 {
-	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_]+)\\s*\\+\\=\\s*(.+)\\s*" );
+	static const boost::regex string_with_setting("\\s*([a-zA-Z0-9\\.\\_\\\\/]+)\\s*\\+\\=\\s*(.+)\\s*" );
 	boost::smatch matching;
 
 	if ( boost::regex_match( str, matching, string_with_setting ) )
@@ -253,8 +254,26 @@ bool property_reader::check_value( const std::string& parameter_name ) const
 
 void property_reader::print( std::ostream& os, const std::string& format ) const
 {
-	for ( const auto property : properties_ )
+	for ( const auto& property : properties_ )
 	{
 		os << boost::format( format ) % property.first % property.second;
+	}
+}
+
+void property_reader::diff( const property_reader& other, property_reader& result ) const
+{
+	for ( const auto& property : properties_ )
+	{
+		const auto cit = other.properties_.find( property.first );
+		if ( cit == other.properties_.end() )
+			result.properties_.emplace( "added   - " + property.first, property.second );
+		else if ( cit->second != property.second )
+			result.properties_.emplace( "changed - " + property.first, property.second );
+	}
+	for ( const auto& property : other.properties_ )
+	{
+		const auto cit = properties_.find( property.first );
+		if ( cit == properties_.end() )
+			result.properties_.emplace( "removed - " + property.first, property.second );
 	}
 }

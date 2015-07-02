@@ -13,6 +13,18 @@ namespace system_utilities
 			void ts_queue_many_threads_tests();
 			void ts_queue_another_container_tests();
 			//
+			void wincq_queue_constructor_tests();
+			void wincq_queue_different_threads_tests();
+			void wincq_queue_wait_pop_tests();
+			void wincq_queue_many_threads_tests();
+			//
+			void tsstd_queue_constructor_tests();
+			void tsstd_queue_push_limit_tests();
+			void tsstd_queue_different_threads_tests();
+			void tsstd_queue_wait_pop_tests();
+			void tsstd_queue_many_threads_tests();
+			void tsstd_queue_another_container_tests();
+			//
 			void lf_queue_constructor_tests();
 			void lf_queue_different_threads_tests();
 			void lf_queue_wait_pop_tests();
